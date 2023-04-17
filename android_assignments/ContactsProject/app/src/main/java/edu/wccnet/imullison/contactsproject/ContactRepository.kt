@@ -1,9 +1,14 @@
 package edu.wccnet.imullison.contactsproject
 
 import android.app.Application
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import kotlinx.coroutines.*
+import androidx.lifecycle.Observer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 
 class ContactRepository(application: Application) {
     val searchResults = MutableLiveData<List<Contact>>()
@@ -11,12 +16,41 @@ class ContactRepository(application: Application) {
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
 
-    var allContacts: LiveData<List<Contact>>?
+    private var dbContacts: LiveData<List<Contact>>? = null
+        set(value) {
+            field = value
+            allContacts.value = value?.value
+        }
+
+    //MutableLiveData "wrapper" for immutable LiveData coming out of database
+    var allContacts = object : MutableLiveData<List<Contact>>() {
+        private var lifecycleOwner: LifecycleOwner? = null
+        private var observer: Observer<in List<Contact>>? = null
+
+        override fun observe(owner: LifecycleOwner, observer: Observer<in List<Contact>>) {
+            super.observe(owner, observer)
+            this.lifecycleOwner = owner
+            this.observer = observer
+            dbContacts?.observe(owner, observer)
+        }
+
+        override fun setValue(value: List<Contact>?) {
+            super.setValue(value)
+
+            //Get observers set up again
+            if (lifecycleOwner != null && observer != null) {
+                dbContacts?.observe(lifecycleOwner!!, observer!!)
+            }
+        }
+
+    }
+
+
     init {
         val db: ContactRoomDatabase? =
             ContactRoomDatabase.getDatabase(application)
         contactDao = db?.contactDao()
-        allContacts = contactDao?.getAllContacts()
+        dbContacts = contactDao?.getAllContacts()
     }
 
     fun insertContact(newcontact: Contact) {
@@ -53,9 +87,9 @@ class ContactRepository(application: Application) {
     fun sort(ascending: Boolean) {
         coroutineScope.launch(Dispatchers.Main) {
             if (ascending) {
-                allContacts = asyncAscSort().await()
+                dbContacts = asyncAscSort().await()
             } else {
-                allContacts = asyncDscSort().await()
+                dbContacts = asyncDscSort().await()
             }
         }
     }
@@ -64,6 +98,7 @@ class ContactRepository(application: Application) {
         coroutineScope.async(Dispatchers.IO) {
             return@async contactDao?.getAllContactsAsc()
         }
+
     private fun asyncDscSort() =
         coroutineScope.async(Dispatchers.IO) {
             return@async contactDao?.getAllContactsDsc()

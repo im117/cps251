@@ -2,10 +2,10 @@ package edu.wccnet.imullison.contactsproject.ui.main
 
 import android.os.Bundle
 import android.telephony.PhoneNumberUtils
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -61,16 +61,23 @@ class MainFragment : Fragment() {
         binding.findButton.setOnClickListener {
             viewModel.findContact(binding.contactName.text.toString())
         }
+        binding.ascButton.setOnClickListener {
+            viewModel.sortAsc()
+
+        }
+        binding.dscButton.setOnClickListener {
+            viewModel.sortDsc()
+        }
 
     }
 
     private fun observerSetup() {
-        viewModel.getAllContacts()?.observe(this, Observer { contacts ->
+        viewModel.getAllContacts().observe(viewLifecycleOwner, Observer { contacts ->
             contacts?.let {
                 adapter?.setContactList(it)
             }
         })
-        viewModel.getSearchResults()?.observe(this, Observer { contacts ->
+        viewModel.getSearchResults().observe(viewLifecycleOwner, Observer { contacts ->
             contacts?.let {
                 if (it.isNotEmpty()) {
                     binding.contactName.setText(it[0].contactName)
