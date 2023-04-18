@@ -11,7 +11,7 @@ interface ContactDao {
     fun insertContact(contact: Contact)
 
     @Query("SELECT * FROM contacts WHERE contactName LIKE '%' || :name || '%'")
-    fun findContact(name: String): List<Contact>
+    fun findContact(name: String): LiveData<List<Contact>>
 
     @Query("DELETE FROM contacts WHERE contactId = :id")
     fun deleteContact(id: Int)

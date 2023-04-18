@@ -16,6 +16,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repository.insertContact(contact)
     }
 
+    fun deleteContact(contactId: Int) {
+        repository.deleteContact(contactId)
+    }
+
     fun findContact(name: String) {
         repository.findContact(name)
     }

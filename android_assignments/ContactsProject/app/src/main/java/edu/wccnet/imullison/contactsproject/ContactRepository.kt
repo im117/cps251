@@ -75,7 +75,7 @@ class ContactRepository(application: Application) {
 
     fun findContact(name: String) {
         coroutineScope.launch(Dispatchers.Main) {
-            searchResults.value = asyncFind(name).await()
+            dbContacts = asyncFind(name).await()
         }
     }
 

@@ -88,7 +88,9 @@ class MainFragment : Fragment() {
     }
 
     private fun recyclerSetup() {
-        adapter = ContactListAdapter(R.layout.contact_list_item)
+        adapter = ContactListAdapter(R.layout.contact_list_item) { contactId ->
+            viewModel.deleteContact(contactId)
+        }
         binding.contactRecycler.layoutManager = LinearLayoutManager(context)
         binding.contactRecycler.adapter = adapter
     }
