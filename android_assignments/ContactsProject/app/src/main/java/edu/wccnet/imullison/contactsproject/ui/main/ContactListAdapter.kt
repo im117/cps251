@@ -1,6 +1,5 @@
 package edu.wccnet.imullison.contactsproject.ui.main
 
-import android.telephony.PhoneNumberUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,7 +21,7 @@ class ContactListAdapter(
         contactList!!.let {
             holder.nameTextView.text = it[listPosition].contactName
             holder.phoneTextView.text =
-                PhoneNumberUtils.formatNumber(it[listPosition].contactPhone.toString(), "US")
+                it[listPosition].contactPhone
         }
         holder.deleteIcon.setOnClickListener {
             deleteClickHandler(contactList!![listPosition].id)

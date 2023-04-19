@@ -58,7 +58,7 @@ class MainFragment : Fragment() {
                 Toast.makeText(
                     context?.applicationContext,
                     "You must enter a name and a phone number",
-                    Toast.LENGTH_LONG
+                    Toast.LENGTH_SHORT
                 ).show()
             }
         }
@@ -70,7 +70,7 @@ class MainFragment : Fragment() {
                 Toast.makeText(
                     context?.applicationContext,
                     "You must enter a search criteria in the name field",
-                    Toast.LENGTH_LONG
+                    Toast.LENGTH_SHORT
                 ).show()
             }
         }
@@ -92,7 +92,15 @@ class MainFragment : Fragment() {
         })
         viewModel.getSearchResults().observe(viewLifecycleOwner, Observer { contacts ->
             contacts?.let {
-                adapter?.setContactList(it)
+                if (it.isNotEmpty()) {
+                    adapter?.setContactList(it)
+                } else {
+                    Toast.makeText(
+                        context?.applicationContext,
+                        "There are no contacts that match your search",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
                 return@Observer
             }
             viewModel.getAllContacts()?.value?.let {
