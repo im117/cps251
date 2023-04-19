@@ -1,10 +1,10 @@
 package edu.wccnet.imullison.contactsproject.ui.main
 
 import android.os.Bundle
-import android.telephony.PhoneNumberUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import edu.wccnet.imullison.contactsproject.Contact
 import edu.wccnet.imullison.contactsproject.R
 import edu.wccnet.imullison.contactsproject.databinding.FragmentMainBinding
-import java.util.*
 
 class MainFragment : Fragment() {
 
@@ -47,19 +46,33 @@ class MainFragment : Fragment() {
     }
 
     private fun listenerSetup() {
-        binding.addButton.setOnClickListener{
+        binding.addButton.setOnClickListener {
             val name = binding.contactName.text.toString()
             val phone = binding.contactPhone.text.toString()
 
             if (name != "" && phone != "") {
-                val digits = PhoneNumberUtils.normalizeNumber(phone)
-                val contact = Contact(name, digits.toLong())
+                val contact = Contact(name, phone)
                 viewModel.insertContact(contact)
                 clearFields()
+            } else {
+                Toast.makeText(
+                    context?.applicationContext,
+                    "You must enter a name and a phone number",
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
         binding.findButton.setOnClickListener {
-            viewModel.findContact(binding.contactName.text.toString())
+            val query = binding.contactName.text.toString()
+            if (query != "") {
+                viewModel.findContact(query)
+            } else {
+                Toast.makeText(
+                    context?.applicationContext,
+                    "You must enter a search criteria in the name field",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
         }
         binding.ascButton.setOnClickListener {
             viewModel.sortAsc()
@@ -72,17 +85,18 @@ class MainFragment : Fragment() {
     }
 
     private fun observerSetup() {
-        viewModel.getAllContacts().observe(viewLifecycleOwner, Observer { contacts ->
+        viewModel.getAllContacts()?.observe(viewLifecycleOwner, Observer { contacts ->
             contacts?.let {
                 adapter?.setContactList(it)
             }
         })
         viewModel.getSearchResults().observe(viewLifecycleOwner, Observer { contacts ->
             contacts?.let {
-                if (it.isNotEmpty()) {
-                    binding.contactName.setText(it[0].contactName)
-                    binding.contactPhone.setText(String.format(Locale.US, "%d", it[0].contactPhone))
-                }
+                adapter?.setContactList(it)
+                return@Observer
+            }
+            viewModel.getAllContacts()?.value?.let {
+                adapter?.setContactList(it)
             }
         })
     }

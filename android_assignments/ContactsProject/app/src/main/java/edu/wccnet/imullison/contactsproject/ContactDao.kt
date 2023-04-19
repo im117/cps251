@@ -11,7 +11,7 @@ interface ContactDao {
     fun insertContact(contact: Contact)
 
     @Query("SELECT * FROM contacts WHERE contactName LIKE '%' || :name || '%'")
-    fun findContact(name: String): LiveData<List<Contact>>
+    fun findContact(name: String): List<Contact>
 
     @Query("DELETE FROM contacts WHERE contactId = :id")
     fun deleteContact(id: Int)
@@ -20,8 +20,8 @@ interface ContactDao {
     fun getAllContacts(): LiveData<List<Contact>>
 
     @Query("SELECT * FROM contacts ORDER BY contactName ASC")
-    fun getAllContactsAsc(): LiveData<List<Contact>>
+    fun getAllContactsAsc(): List<Contact>
 
     @Query("SELECT * FROM contacts ORDER BY contactName DESC")
-    fun getAllContactsDsc(): LiveData<List<Contact>>
+    fun getAllContactsDsc(): List<Contact>
 }

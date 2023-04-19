@@ -16,11 +16,11 @@ class Contact {
     @ColumnInfo(name="contactName")
     var contactName: String? = null
 
-    @ColumnInfo(name="contactPhone")
-    var contactPhone: Long = 0
+    @ColumnInfo(name = "contactPhone")
+    var contactPhone: String = ""
 
     constructor()
-    constructor(contactname: String, phone: Long) {
+    constructor(contactname: String, phone: String) {
         this.contactName = contactname
         this.contactPhone = phone
     }
